@@ -59,3 +59,4 @@ def load_texture(path, width = 256, height = 256):
 
     glBindTexture(GL_TEXTURE_2D, 0)  # Unbind texture after configuration
     return texture
+

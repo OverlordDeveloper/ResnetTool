@@ -23,9 +23,9 @@ class Camera:
         front.x = np.cos(np.radians(self.yaw)) * np.cos(np.radians(self.pitch))
         front.y = np.sin(np.radians(self.pitch))
         front.z = np.sin(np.radians(self.yaw)) * np.cos(np.radians(self.pitch))
+
         self.front = vector.normalize(front)
 
-        a = Vector3.cross(Vector3((1, 2, 3)), Vector3((1, 2, 3)))
         # Also re-calculate the right and up vector
 
         self.right = vector.normalize(pyrr.vector3.cross(self.front, self.world_up))
@@ -44,7 +44,8 @@ class Camera:
             self.position -= self.right * velocity
         if direction == 'RIGHT':
             self.position += self.right * velocity
-        print("|some stuff pressed")
+
+
     def process_mouse_movement(self, xoffset, yoffset, constrain_pitch=True):
         xoffset *= self.sensitivity
         yoffset *= self.sensitivity

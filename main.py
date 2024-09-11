@@ -5,7 +5,7 @@ import imgui
 from imgui.integrations.glfw import GlfwRenderer
 import cv2
 from utils import create_shader_program, load_texture
-from pyrr import Matrix44
+from pyrr import Matrix44, Vector3
 from camera import Camera
 from primitives import create_primitive_rectangle
 from gameobject import Quad
@@ -41,33 +41,22 @@ rect_data = create_primitive_rectangle()
 
 texture1 = load_texture(rf"C:\Users\Horia\source\repos\PythonOpengl/bird.jpg")  # Replace with your texture path
 
-def render(gobj, program):
-
-    model = gobj.model
-    model_location = glGetUniformLocation(program, "model")
-
-    glUniformMatrix4fv(model_location, 1, GL_FALSE, model)
-
-    glActiveTexture(GL_TEXTURE0)
-    glBindTexture(GL_TEXTURE_2D, gobj.texture)
-    glUseProgram(program)
-    glBindVertexArray(gobj.vao)
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, None)
-
 positions = [
         [0.0, 0.0, 0.0],   # Center
-        [10, 0, 15],
+        [0, 1, 0],
         [5, 20, 0]
     ]
 
 objs = [Quad(rect_data, texture1) for pos in positions]
 for i in range(len(objs)):
     objs[i].SetPosition(positions[i])
-    
+    objs[i].load_program(shader_program)
+
 camera = Camera()
 
 last_x, last_y = 400, 300
 first_mouse = True
+mouse_check = True
 
 def mouse_callback(window, xpos, ypos):
     global last_x, last_y, first_mouse
@@ -81,7 +70,7 @@ def mouse_callback(window, xpos, ypos):
 
     last_x = xpos
     last_y = ypos
-    if glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT) == glfw.PRESS:
+    if glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT) == glfw.PRESS and mouse_check:
         camera.process_mouse_movement(xoffset, yoffset)
 
 def scroll_callback(window, xoffset, yoffset):
@@ -89,15 +78,12 @@ def scroll_callback(window, xoffset, yoffset):
 
 glfw.set_cursor_pos_callback(window, mouse_callback)
 glfw.set_scroll_callback(window, scroll_callback)
-#glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
-
 
 # Main application loop
 last_frame_time = 0.0
 
 while not glfw.window_should_close(window):
     # Poll for and process events
-
 
     # Time management
     current_frame_time = glfw.get_time()
@@ -118,7 +104,6 @@ while not glfw.window_should_close(window):
     glfw.poll_events()
     imgui_renderer.process_inputs()
 
-    
     view = camera.get_view_matrix()
     projection = Matrix44.perspective_projection(camera.zoom, Width / Height, 0.1, 1000.0)
 
@@ -127,21 +112,23 @@ while not glfw.window_should_close(window):
 
     # ImGui controls
     imgui.begin("Control Panel")
+
+    if imgui.is_window_hovered():
+        mouse_check = False
+    else:
+        mouse_check = True
+    
     if imgui.button("Reload Texture"):
-        texture1 = load_texture(rf"C:\Users\Horia\source\repos\PythonOpengl/bird.jpg")
+        objs[0].SetPosition(Vector3((10, 0, 13)))
     imgui.end()
-
-    glUseProgram(shader_program)
-
-    view_loc = glGetUniformLocation(shader_program, "view")
-    projection_loc = glGetUniformLocation(shader_program, "projection")
-    glUniformMatrix4fv(view_loc, 1, GL_FALSE, view)
-    glUniformMatrix4fv(projection_loc, 1, GL_FALSE, projection)
+    
+    for q in objs:
+        q.Update(view, projection)
     # Rendering
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     for obj in objs:
-        render(obj, shader_program)
+        obj.Render()
 
     # Render ImGui
     imgui.render()

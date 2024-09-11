@@ -15,15 +15,15 @@ class Quad:
         self.SetRotation(Vector3((0, 0, 0)))
         self.SetScale(Vector3((1, 1, 1)))
 
-
         self.texture = texture
+
+    def SetTexture(self, texture): # assumes a opencv object
+        pass
 
     def load_program(self, program):
 
         self.program = program
 
-        self.model_loc = glGetUniformLocation(self.program, "model")
-        self.view_loc = glGetUniformLocation(self.program, "view")
         self.projection_loc = glGetUniformLocation(self.program, "projection")
         self.modelView_loc = glGetUniformLocation(self.program, "modelView")
 
@@ -70,19 +70,3 @@ class Quad:
         self.scale = scale
         self.scaleMatrix = Matrix44.from_scale(self.scale)
         
-
-    def _update_model_matrix(self):
-        # Translation matrix
-        translation_matrix = Matrix44.from_translation(self.position)
-
-        # Rotation matrices
-        rotation_x_matrix = Matrix44.from_x_rotation(self.rotation.x)
-        rotation_y_matrix = Matrix44.from_y_rotation(self.rotation.y)
-        rotation_z_matrix = Matrix44.from_z_rotation(self.rotation.z)
-        rotation_matrix = rotation_z_matrix @ rotation_y_matrix @ rotation_x_matrix
-
-        # Scale matrix
-        scale_matrix = Matrix44.from_scale(self.scale)
-
-        # Combine all transformations: translation * rotation * scale
-        self.model = translation_matrix @ rotation_matrix @ scale_matrix

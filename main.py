@@ -9,6 +9,7 @@ from pyrr import Matrix44, Vector3
 from camera import Camera
 from primitives import create_primitive_rectangle
 from gameobject import Quad
+from extractor import FeatureExtractor
 
 Width = 800
 Height = 600
@@ -51,6 +52,8 @@ objs = [Quad(rect_data, texture1) for pos in positions]
 for i in range(len(objs)):
     objs[i].SetPosition(positions[i])
     objs[i].load_program(shader_program)
+fextr = FeatureExtractor()
+
 
 camera = Camera()
 

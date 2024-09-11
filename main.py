@@ -4,7 +4,7 @@ import numpy as np
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
 import cv2
-from utils import create_shader_program, load_texture
+from utils import create_shader_program, load_texture, process_user_input, update_delta_time
 from pyrr import Matrix44, Vector3
 from camera import Camera
 from primitives import create_primitive_rectangle
@@ -89,19 +89,10 @@ while not glfw.window_should_close(window):
     # Poll for and process events
 
     # Time management
-    current_frame_time = glfw.get_time()
-    delta_time = current_frame_time - last_frame_time
-    last_frame_time = current_frame_time
+    last_frame_time, delta_time = update_delta_time(last_frame_time)
 
     # Process input
-    if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        camera.process_keyboard("FORWARD", delta_time)
-    if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        camera.process_keyboard("BACKWARD", delta_time)
-    if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
-        camera.process_keyboard("LEFT", delta_time)
-    if glfw.get_key(window, glfw.KEY_D) == glfw.PRESS:
-        camera.process_keyboard("RIGHT", delta_time)
+    process_user_input(window, camera, delta_time)
 
 
     glfw.poll_events()
@@ -127,6 +118,7 @@ while not glfw.window_should_close(window):
     
     for q in objs:
         q.Update(view, projection)
+        
     # Rendering
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -146,3 +138,5 @@ glDeleteProgram(shader_program)
 
 imgui_renderer.shutdown()
 glfw.terminate()
+
+

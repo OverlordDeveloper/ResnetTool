@@ -1,5 +1,6 @@
 
 from OpenGL.GL import *
+import glfw
 import cv2
 # Compile shaders and link them
 def compile_shader(source, shader_type):
@@ -60,3 +61,22 @@ def load_texture(path, width = 256, height = 256):
     glBindTexture(GL_TEXTURE_2D, 0)  # Unbind texture after configuration
     return texture
 
+
+def process_user_input(window, camera, delta_time):
+
+    if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
+        camera.process_keyboard("FORWARD", delta_time)
+    if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
+        camera.process_keyboard("BACKWARD", delta_time)
+    if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
+        camera.process_keyboard("LEFT", delta_time)
+    if glfw.get_key(window, glfw.KEY_D) == glfw.PRESS:
+        camera.process_keyboard("RIGHT", delta_time)
+
+
+def update_delta_time(last_frame_time):
+    current_frame_time = glfw.get_time()
+    delta_time = current_frame_time - last_frame_time
+    last_frame_time = current_frame_time
+    
+    return last_frame_time, delta_time
